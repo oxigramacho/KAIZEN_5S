@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAIZEN 5S - Painel Gerencial Completo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #121212;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #1e1e1e;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+            border-top: 4px solid #ff7a00;
+        }
+        h1 {
+            color: #ffffff;
+            font-size: 20px;
+            margin: 0;
+        }
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .btn-auditoria {
+            background-color: #ff7a00;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background-color 0.2s;
+        }
+        .btn-auditoria:hover {
+            background-color: #e06d00;
+        }
+        .btn-sair {
+            background-color: #2c2c2c;
+            color: white;
+            border: 1px solid #3f3f3f;
+            padding: 8px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background-color 0.2s;
+        }
+        .btn-sair:hover {
+            background-color: #383838;
+        }
+        .filtros-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .filtro-container {
+            background: #1e1e1e;
+            padding: 12px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #2c2c2c;
+        }
+        .filtro-container label {
+            font-weight: bold;
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+        .filtro-container select {
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #3f3f3f;
+            background-color: #2c2c2c;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+        }
+        .filtro-container select:focus {
+            border-color: #ff7a00;
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1300px;
+            margin: 0 auto 25px auto;
+        }
+        .card {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid #2c2c2c;
+        }
+        h3 {
+            color: #ffffff;
+            font-size: 16px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            height: 280px;
+            margin: 0 auto;
+        }
+        .meta-card-content {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+            padding: 10px 0;
+        }
+        .meta-sub {
+            font-size: 12px;
+            color: #b0b0b0;
+            display: block;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .meta-status-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #2c2c2c;
+        }
+        th {
+            background-color: #252525;
+            color: #b0b0b0;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #2c2c2c;
+        }
+        .badge-nota {
+            background-color: #ff7a00;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+        .card-tabela {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>PAINEL GERENCIAL 5S - VISÃO GERAL</h1>
+        <div class="header-actions">
+            <a href="auditoria.html" class="btn-auditoria">Nova Auditoria</a>
+            <a href="login.html" class="btn-sair">Sair</a>
+        </div>
+    </header>
+
+    <div class="filtros-wrapper">
+        <div class="filtro-container">
+            <label for="filtroPeriodo">Período:</label>
+            <select id="filtroPeriodo" onchange="aplicarFiltros()">
+                <option value="todos" selected>Todos (Geral)</option>
+                <option value="semanal">Semanal (7 dias)</option>
+                <option value="quinzenal">Quinzenal (15 dias)</option>
+            </select>
+        </div>
+
+        <div class="filtro-container">
+            <label for="filtroTurno">Turno:</label>
+            <select id="filtroTurno" onchange="aplicarFiltros()">
+                <option value="todos" selected>Todos os Turnos</option>
+                <option value="1">Turno 1</option>
+                <option value="2">Turno 2</option>
+                <option value="3">Turno 3</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="dashboard-grid">
+        <div class="card">
+            <h3>Descontos por Senso 5S</h3>
+            <div class="chart-container">
+                <canvas id="graficoSenso"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Acompanhamento da Meta</h3>
+            <div class="meta-card-content">
+                <span class="meta-sub">META ESTABELECIDA: 100%</span>
+                <div style="position: relative; height: 180px; width: 100%;">
+                    <canvas id="graficoEvolucaoMeta"></canvas>
+                </div>
+                <div>
+                    <span id="metaStatusBadge" class="meta-status-badge" style="background-color: #9e9e9e;">Calculando...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Ranking de Turno (Desvios)</h3>
+            <div class="chart-container">
+                <canvas id="graficoTurnos"></canvas>
+            </div>
+        </div>
+
+        <div class="card card-tabela">
+            <h3>Histórico Completo de Auditorias</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Data</th>
+                        <th>Turno</th>
+                        <th>Setor</th>
+                        <th>Líder</th>
+                        <th>Auditor</th>
+                        <th>Desconto</th>
+                        <th>Nota Final</th>
+                    </tr>
+                </thead>
+                <tbody id="tabelaCorpo">
+                    <tr>
+                        <td colspan="8" style="text-align: center;">Carregando dados...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const host = 'http://localhost:3000';
+        let dadosTabelaGlobal = [];
+        let dadosSensoGlobal = [];
+        let chartSenso = null;
+        let chartTurnos = null;
+        let chartEvolucaoMeta = null;
+
+        async function carregarDadosIniciais(silencioso = false) {
+            try {
+                const resTabela = await fetch(`${host}/api/ocorrencias-detalhadas`);
+                if (!resTabela.ok) throw new Error("Erro ao buscar tabela");
+                dadosTabelaGlobal = await resTabela.json();
+
+                const resSenso = await fetch(`${host}/api/dados-senso`);
+                if (!resSenso.ok) throw new Error("Erro ao buscar sensos");
+                dadosSensoGlobal = await resSenso.json();
+
+                aplicarFiltros();
+            } catch (error) {
+                if (!silencioso) {
+                    console.error("Erro ao carregar painel:", error);
+                    const corpoTabela = document.getElementById('tabelaCorpo');
+                    if (corpoTabela) {
+                        corpoTabela.innerHTML = `<tr><td colspan="8" style="text-align: center; color: #ff6b6b;">Erro ao carregar dados do servidor.</td></tr>`;
+                    }
+                }
+            }
+        }
+
+        function aplicarFiltros() {
+            const periodo = document.getElementById('filtroPeriodo').value;
+            const turnoSelecionado = document.getElementById('filtroTurno') ? document.getElementById('filtroTurno').value : 'todos';
+            
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+
+            let diasSubtrair = 0;
+            if (periodo === 'semanal') diasSubtrair = 7;
+            else if (periodo === 'quinzenal') diasSubtrair = 15;
+
+            const dataLimite = new Date(hoje);
+            dataLimite.setDate(hoje.getDate() - diasSubtrair);
+
+            let dadosTabelaFiltrados = dadosTabelaGlobal.filter(item => {
+                if (!item.data_auditoria) return false;
+                const dataStr = item.data_auditoria.split('T')[0];
+                const dataAuditoria = new Date(dataStr + 'T00:00:00');
+
+                const passaPeriodo = (periodo === 'todos') || (dataAuditoria >= dataLimite && dataAuditoria <= hoje);
+                const passaTurno = (turnoSelecionado === 'todos') || (Number(item.turno_id) === Number(turnoSelecionado));
+
+                return passaPeriodo && passaTurno;
+            });
+
+            renderizarTabela(dadosTabelaFiltrados);
+            atualizarGraficoEvolucaoMeta(dadosTabelaFiltrados);
+            atualizarRankingTurnosFiltrado(dadosTabelaFiltrados);
+
+            let dadosSensoFiltrados = dadosSensoGlobal.filter(item => {
+                if (!item.data_auditoria) return false;
+                const dataStr = item.data_auditoria.split('T')[0];
+                const dataAuditoria = new Date(dataStr + 'T00:00:00');
+
+                const passaPeriodo = (periodo === 'todos') || (dataAuditoria >= dataLimite && dataAuditoria <= hoje);
+                const passaTurno = (turnoSelecionado === 'todos') || (Number(item.turno_id) === Number(turnoSelecionado));
+
+                return passaPeriodo && passaTurno;
+            });
+
+            agruparERenderizarGraficoPizza(dadosSensoFiltrados);
+        }
+
+        function renderizarTabela(dados) {
+            const corpoTabela = document.getElementById('tabelaCorpo');
+            if (!corpoTabela) return;
+            corpoTabela.innerHTML = '';
+
+            if (dados.length === 0) {
+                corpoTabela.innerHTML = `<tr><td colspan="8" style="text-align: center;">Nenhuma auditoria encontrada para este filtro.</td></tr>`;
+                return;
+            }
+
+            dados.forEach(item => {
+                let dataFormatada = item.data_auditoria ? new Date(item.data_auditoria).toLocaleDateString('pt-BR') : '-';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>#${item.id}</td>
+                    <td>${dataFormatada}</td>
+                    <td>Turno ${item.turno_id || '-'}</td>
+                    <td>${item.setor || 'Não definido'}</td>
+                    <td>${item.lider || 'Não definido'}</td>
+                    <td>${item.auditor || 'Não definido'}</td>
+                    <td>${parseFloat(item.total_desconto || 0).toFixed(2)}</td>
+                    <td><span class="badge-nota">${parseFloat(item.nota_final || 0).toFixed(2)}</span></td>
+                `;
+                corpoTabela.appendChild(tr);
+            });
+        }
+
+        function agruparERenderizarGraficoPizza(dados) {
+            const agrupado = {};
+            dados.forEach(item => {
+                const senso = item.senso || 'Não classificado';
+                const valor = parseFloat(item.valor_desconto || 0);
+                agrupado[senso] = (agrupado[senso] || 0) + valor;
+            });
+
+            const labels = Object.keys(agrupado);
+            const valores = Object.values(agrupado);
+
+            const canvas = document.getElementById('graficoSenso');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            if (chartSenso) chartSenso.destroy();
+
+            chartSenso = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Sem dados'],
+                    datasets: [{
+                        data: valores.length > 0 ? valores : [1],
+                        backgroundColor: ['#ff7a00', '#ffb700', '#ffa533', '#cc6300', '#994a00'],
+                        borderColor: '#1e1e1e',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { 
+                            position: 'bottom',
+                            labels: { color: '#ffffff' }
+                        } 
+                    }
+                }
+            });
+        }
+
+        function atualizarRankingTurnosFiltrado(dados) {
+            const turnosMap = { '1': 0, '2': 0, '3': 0 };
+
+            dados.forEach(item => {
+                const turnoId = String(item.turno_id);
+                const desconto = parseFloat(item.total_desconto || 0);
+                if (turnosMap.hasOwnProperty(turnoId)) {
+                    turnosMap[turnoId] += desconto;
+                } else if (item.turno_id) {
+                    turnosMap[turnoId] = desconto;
+                }
+            });
+
+            const labels = Object.keys(turnosMap).map(t => `Turno ${t}`);
+            const valores = Object.values(turnosMap);
+
+            const canvas = document.getElementById('graficoTurnos');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            
+            if (chartTurnos) chartTurnos.destroy();
+
+            chartTurnos = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Total de Descontos',
+                        data: valores,
+                        backgroundColor: ['#ff7a00', '#ffb700', '#e06d00'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { 
+                            beginAtZero: true,
+                            grid: { color: '#2c2c2c' },
+                            ticks: { color: '#b0b0b0' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#b0b0b0' }
+                        }
+                    }
+                }
+            });
+        }
+
+        function atualizarGraficoEvolucaoMeta(dados) {
+            const canvas = document.getElementById('graficoEvolucaoMeta');
+            const badge = document.getElementById('metaStatusBadge');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const dadosOrdenados = [...dados].sort((a, b) => new Date(a.data_auditoria) - new Date(b.data_auditoria));
+
+            const labels = dadosOrdenados.map(item => {
+                return item.data_auditoria ? new Date(item.data_auditoria).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) : '';
+            });
+            
+            const valores = dadosOrdenados.map(item => parseFloat(item.nota_final || 0) * 10); 
+
+            let somaNotas = 0;
+            dados.forEach(item => {
+                somaNotas += parseFloat(item.nota_final || 0) * 10;
+            });
+            const percentualMedio = dados.length > 0 ? somaNotas / dados.length : 0;
+            const atingiuMeta = percentualMedio >= 95;
+
+            if (badge) {
+                if (dados.length === 0) {
+                    badge.style.backgroundColor = '#9e9e9e';
+                    badge.innerText = 'SEM DADOS ⚠️';
+                } else {
+                    badge.style.backgroundColor = atingiuMeta ? '#2e7d32' : '#c62828';
+                    badge.innerText = atingiuMeta ? 'META ATINGIDA 🎯' : 'ABAIXO DA META ⚠️';
+                }
+            }
+
+            if (chartEvolucaoMeta) chartEvolucaoMeta.destroy();
+
+            chartEvolucaoMeta = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length > 0 ? labels : ['Sem dados'],
+                    datasets: [{
+                        data: valores.length > 0 ? valores : [0],
+                        borderColor: '#ff7a00',
+                        backgroundColor: 'rgba(255, 122, 0, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: '#ff7a00'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 100,
+                            grid: { color: '#2c2c2c' },
+                            ticks: { color: '#b0b0b0' }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: '#b0b0b0' }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.onload = () => {
+            carregarDadosIniciais();
+
+            setInterval(() => {
+                carregarDadosIniciais(true);
+            }, 10000);
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAIZEN - Login e Cadastro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background: #1e1e1e;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            border-top: 4px solid #ff7a00;
+        }
+
+        .login-card h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 26px;
+            letter-spacing: 1px;
+        }
+
+        .login-card h2 span {
+            color: #ff7a00;
+        }
+
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #2c2c2c;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            color: #777;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s, border-bottom 0.3s;
+        }
+
+        .tab.active {
+            color: #ff7a00;
+            border-bottom: 2px solid #ff7a00;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: #b0b0b0;
+            font-size: 13px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            background-color: #2c2c2c;
+            border: 1px solid #3f3f3f;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #ff7a00;
+        }
+
+        .btn-container {
+            margin-top: 24px;
+        }
+
+        button.action-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            background-color: #ff7a00;
+            color: #ffffff;
+            transition: background 0.3s;
+        }
+
+        button.action-btn:hover {
+            background-color: #e06d00;
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        .form-section.active {
+            display: block;
+        }
+
+        .reset-container {
+            margin-top: 15px;
+        }
+
+        #btn-reset {
+            background: none;
+            border: none;
+            color: #ffb700;
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2>KAI<span>ZEN</span></h2>
+
+        <div class="tabs">
+            <button class="tab active" onclick="trocarAba('login')">Entrar</button>
+            <button class="tab" onclick="trocarAba('cadastro')">Cadastrar</button>
+        </div>
+
+        <div id="secao-login" class="form-section active">
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" id="login-email" placeholder="seu@solcargas.com.br">
+            </div>
+            <div class="input-group">
+                <label>Senha</label>
+                <input type="password" id="login-senha" placeholder="Sua senha">
+            </div>
+            <div class="btn-container">
+                <button class="action-btn" id="btn-entrar">Acessar Sistema</button>
+            </div>
+            <div class="reset-container">
+                <button id="btn-reset">Esqueci minha senha</button>
+            </div>
+        </div>
+
+        <div id="secao-cadastro" class="form-section">
+            <div class="input-group">
+                <label>Seu E-mail Corporativo</label>
+                <input type="email" id="cad-email" placeholder="novo.usuario@solcargas.com.br">
+            </div>
+            <div class="input-group">
+                <label>Crie uma Senha</label>
+                <input type="password" id="cad-senha" placeholder="Mínimo 8 caracteres">
+            </div>
+            <div class="btn-container">
+                <button class="action-btn" id="btn-cadastrar">Criar Minha Conta</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword,
+            sendPasswordResetEmail
+        } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAmgnjXMcQl-QTPMgjMI5K_tx4DI08DHNM",
+            authDomain: "kaizen-99bf4.firebaseapp.com",
+            projectId: "kaizen-99bf4",
+            storageBucket: "kaizen-99bf4.appspot.com",
+            messagingSenderId: "1063915563208",
+            appId: "1:1063915563208:web:b2202eae91b807b7771dfd",
+            measurementId: "G-NCR1RMLDHS"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.trocarAba = function(tipo) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+
+            document.getElementById('secao-login').classList.remove('active');
+            document.getElementById('secao-cadastro').classList.remove('active');
+
+            if(tipo === 'login') {
+                tabs[0].classList.add('active');
+                document.getElementById('secao-login').classList.add('active');
+            } else {
+                tabs[1].classList.add('active');
+                document.getElementById('secao-cadastro').classList.add('active');
+            }
+        }
+
+        // Lógica de Redirecionamento Baseada no E-mail
+        function direcionarUsuario(email) {
+            const emailLogado = email.toLowerCase();
+
+            // Chefes / Gestores (Gráficos)
+            const listaChefes = ["gramachogabriella@gmail.com"];
+            // Pessoal Quinzenal
+            const listaQuinzenal = ["gr@solcargas.com.br"];
+
+            if (listaChefes.includes(emailLogado)) {
+                window.location.href = 'public/grafico.html';
+            } else if (listaQuinzenal.includes(emailLogado)) {
+                window.location.href = 'public/auditoria.quinzenal.html';
+            } else {
+                window.location.href = 'public/auditoria.html';
+            }
+        }
+
+        // Botão Entrar
+        document.getElementById('btn-entrar').addEventListener('click', () => {
+            const email = document.getElementById('login-email').value.trim();
+            const senha = document.getElementById('login-senha').value;
+
+            if(!email || !senha) {
+                alert('Preencha o e-mail e a senha.');
+                return;
+            }
+
+            signInWithEmailAndPassword(auth, email, senha)
+                .then((userCredential) => {
+                    direcionarUsuario(userCredential.user.email);
+                })
+                .catch(error => alert('Erro ao entrar: ' + error.message));
+        });
+
+        // Botão Cadastrar Novo Usuário
+        document.getElementById('btn-cadastrar').addEventListener('click', () => {
+            const email = document.getElementById('cad-email').value.trim();
+            const senha = document.getElementById('cad-senha').value;
+
+            if(!email || !senha) {
+                alert('Preencha os campos de cadastro.');
+                return;
+            }
+
+            createUserWithEmailAndPassword(auth, email, senha)
+                .then((userCredential) => {
+                    alert('Conta criada com sucesso! Entrando no sistema...');
+                    direcionarUsuario(userCredential.user.email);
+                })
+                .catch(error => alert('Erro ao cadastrar: ' + error.message));
+        });
+
+        // Recuperar Senha
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            const email = document.getElementById('login-email').value.trim();
+            if (!email) {
+                alert('Digite seu e-mail no campo de login acima para recuperar a senha.');
+                return;
+            }
+            sendPasswordResetEmail(auth, email)
+                .then(() => alert('E-mail de redefinição enviado!'))
+                .catch(error => alert('Erro: ' + error.message));
+        });
+    </script>
+</body>
+</html>

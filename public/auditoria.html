@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAIZEN</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .salas {
+            width: 100%;
+            max-width: 320px;
+        }
+
+        a {
+            text-decoration: none;
+            display: block;
+            width: 100%;
+        }
+
+        button {
+            width: 100%;
+            background-color: #ff7a00;
+            border: none;
+            border-radius: 8px;
+            padding: 16px 24px;
+            cursor: pointer;
+            font-size: 15px;
+            color: #ffffff;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            transition: transform 0.1s ease, background-color 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            background-color: #e06d00;
+        }
+
+        button:active {
+            transform: scale(0.97);
+            background-color: #cc6300;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="salas">
+        <a href="1expedição.html"><button>EXPEDIÇÃO</button></a>
+    </div>
+    <div class="salas">
+        <a href="2retira.html"><button>RETIRA</button></a>
+    </div>
+    <div class="salas">
+        <a href="3descarregamento.html"><button>DESCARREGAMENTO</button></a>
+    </div>
+    <div class="salas">
+        <a href="4carregamento.html"><button>CARREGAMENTO</button></a>
+    </div>
+
+</body>
+</html>

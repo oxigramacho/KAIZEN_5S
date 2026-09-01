@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUDITORIA QUINZENAL - 5S</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            padding: 30px 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 26px;
+            margin-bottom: 8px;
+            color: #ffffff;
+            letter-spacing: 1px;
+        }
+
+        .descricao {
+            text-align: center;
+            color: #b0b0b0;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+
+        form {
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border-top: 4px solid #ff7a00;
+        }
+
+        .campo-grupo {
+            margin-bottom: 18px;
+            text-align: left;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #b0b0b0;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"], select, input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #2c2c2c;
+            border: 1px solid #3f3f3f;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #ffffff;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, select:focus, input[type="date"]:focus {
+            border-color: #ff7a00;
+        }
+
+        input[readonly] {
+            background-color: #252525;
+            color: #777;
+            cursor: not-allowed;
+        }
+
+        select option {
+            background-color: #2c2c2c;
+            color: #ffffff;
+        }
+
+        h3 {
+            color: #ff7a00 !important;
+            font-size: 18px;
+            margin-top: 25px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #2c2c2c;
+            padding-bottom: 5px;
+        }
+
+        .ocorrencia {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border: 1px solid #3f3f3f;
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: #2c2c2c;
+            color: #ffffff;
+            cursor: pointer; 
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+
+        .ocorrencia:hover {
+            background-color: #353535;
+            border-color: #ff7a00;
+        }
+
+        .ocorrencia span strong {
+            color: #ffb700;
+        }
+
+        .erro {
+            width: 20px;
+            height: 20px;
+            margin-left: 15px;
+            cursor: pointer;
+            accent-color: #ff7a00;
+        }
+
+        .btn-calcular {
+            width: 100%;
+            background-color: #ff7a00;
+            color: #ffffff;
+            border: none;
+            padding: 14px 20px;
+            font-size: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 24px;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-calcular:hover {
+            background-color: #e06d00;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #2c2c2c;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <form id="formAuditoria" onsubmit="enviarAuditoria(event)">
+        <h2>Ocorrências - QUINZENAL 5S</h2>
+        <p class="descricao">Selecione as ocorrências encontradas na auditoria quinzenal</p>
+
+        <div class="campo-grupo">
+            <label for="nome">Nome do Auditor (obrigatório):</label>
+            <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+        </div>
+
+        <div class="campo-grupo">
+            <label for="data">Data da Auditoria:</label>
+            <input type="date" id="data" name="data" readonly required>
+        </div>
+
+        <div class="campo-grupo">
+            <label for="turno_id">Turno:</label>
+            <select id="turno_id" required>
+                <option value="1">1º Turno (Manhã)</option>
+                <option value="2">2º Turno (Tarde)</option>
+                <option value="3">3º Turno (Noite)</option>
+            </select>
+        </div>
+
+        <div class="campo-grupo">
+            <label for="lider_id">Líder Responsável:</label>
+            <select id="lider_id" required>
+                <!-- Preenchido via JavaScript -->
+            </select>
+        </div>
+
+        <div class="campo-grupo">
+            <label for="setor_id">Setor:</label>
+            <select id="setor_id" required>
+                <!-- Preenchido via JavaScript -->
+            </select>
+        </div>
+
+        <hr>
+
+        <!-- ================= SEIRI (Utilização) ================= -->
+        <h3>Seiri (Utilização)</h3>
+        <label class="ocorrencia">
+            <span>Item sem uso pontual na área <strong>(-0,25)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.25" data-descricao="Item sem uso pontual na área" data-senso="Seiri (Utilização)">
+        </label>
+        <label class="ocorrencia">
+            <span>Material sem uso ocupando espaço relevante <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Material sem uso ocupando espaço relevante" data-senso="Seiri (Utilização)">
+        </label>
+        <label class="ocorrencia">
+            <span>Grande volume de material fora do padrão <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Grande volume de material fora do padrão" data-senso="Seiri (Utilização)">
+        </label>
+
+        <!-- ================= SEITON (Ordenação) ================= -->
+        <h3>Seiton (Ordenação)</h3>
+        <label class="ocorrencia">
+            <span>Ferramenta fora do local habitual (sem impacto) <strong>(-0,25)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.25" data-descricao="Ferramenta fora do local habitual (sem impacto)" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Material levemente desorganizado <strong>(-0,25)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.25" data-descricao="Material levemente desorganizado" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Objeto fora do lugar sem impacto no fluxo <strong>(-0,25)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.25" data-descricao="Objeto fora do lugar sem impacto no fluxo" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Pallet fora do local definido <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Pallet fora do local definido" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Pallet mal posicionado <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Pallet mal posicionado" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Carga fora da área correta <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Carga fora da área correta" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Equipamento fora do local habitual <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Equipamento fora do local habitual" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Mistura de cargas ou processos <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Mistura de cargas ou processos" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Obstrução parcial de passagem <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Obstrução parcial de passagem" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Obstrução de rota de circulação <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Obstrução de rota de circulação" data-senso="Seiton (Ordenação)">
+        </label>
+        <label class="ocorrencia">
+            <span>Área totalmente desorganizada <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Área totalmente desorganizada" data-senso="Seiton (Ordenação)">
+        </label>
+
+        <!-- ================= SEISO (Limpeza) ================= -->
+        <h3>Seiso (Limpeza)</h3>
+        <label class="ocorrencia">
+            <span>Copo plástico no chão <strong>(-0,25)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.25" data-descricao="Copo plástico no chão" data-senso="Seiso (Limpeza)">
+        </label>
+        <label class="ocorrencia">
+            <span>Pequena sujeira localizada <strong>(-0,25)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.25" data-descricao="Pequena sujeira localizada" data-senso="Seiso (Limpeza)">
+        </label>
+        <label class="ocorrencia">
+            <span>Papel ou plástico no chão <strong>(-0,25)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.25" data-descricao="Papel ou plástico no chão" data-senso="Seiso (Limpeza)">
+        </label>
+        <label class="ocorrencia">
+            <span>Embalagem vazia não descartada <strong>(-0,25)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.25" data-descricao="Embalagem vazia não descartada" data-senso="Seiso (Limpeza)">
+        </label>
+        <label class="ocorrencia">
+            <span>Acúmulo de lixo na área <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Acúmulo de lixo na área" data-senso="Seiso (Limpeza)">
+        </label>
+        <label class="ocorrencia">
+            <span>Vazamento de óleo ou produto <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Vazamento de óleo ou produto" data-senso="Seiso (Limpeza)">
+        </label>
+
+        <!-- ================= SEIKETSU (Padronização) ================= -->
+        <h3>Seiketsu (Padronização)</h3>
+        <label class="ocorrencia">
+            <span>Área com organização inconsistente <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Área com organização inconsistente" data-senso="Seiketsu (Padronização)">
+        </label>
+        <label class="ocorrencia">
+            <span>Falta de padrão visual na área <strong>(-0,50)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="0.50" data-descricao="Falta de padrão visual na área" data-senso="Seiketsu (Padronização)">
+        </label>
+
+        <!-- ================= SHITSUKE (Disciplina) ================= -->
+        <h3>Shitsuke (Disciplina)</h3>
+        <label class="ocorrencia">
+            <span>Carga mal acondicionada (risco de avaria) <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Carga mal acondicionada (risco de avaria)" data-senso="Shitsuke (Disciplina)">
+        </label>
+        <label class="ocorrencia">
+            <span>Material oferecendo risco de acidente <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Material oferecendo risco de acidente" data-senso="Shitsuke (Disciplina)">
+        </label>
+        <label class="ocorrencia">
+            <span>Equipamento em local inseguro <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Equipamento em local inseguro" data-senso="Shitsuke (Disciplina)">
+        </label>
+        <label class="ocorrencia">
+            <span>Não cumprimento de padrão definido <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Não cumprimento de padrão definido" data-senso="Shitsuke (Disciplina)">
+        </label>
+        <label class="ocorrencia">
+            <span>Reincidência de problema já tratado <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Reincidência de problema já tratado" data-senso="Shitsuke (Disciplina)">
+        </label>
+        <label class="ocorrencia">
+            <span>Não utilização de EPI (quando aplicável) <strong>(-1,00)</strong></span>
+            <input type="checkbox" name="descontos" class="erro" value="1.00" data-descricao="Não utilização de EPI (quando aplicável)" data-senso="Shitsuke (Disciplina)">
+        </label>
+        
+        <button type="submit" class="btn-calcular">Salvar Auditoria Quinzenal</button>
+    </form>
+
+    <script>
+            const host = 'https://kaizen-5s-backend.onrender.com';
+
+        const campoData = document.getElementById('data');
+        const hoje = new Date().toISOString().split('T')[0];
+        campoData.value = hoje;
+
+        async function carregarLideres() {
+            try {
+                const res = await fetch(`${host}/lideres`);
+                const lideres = await res.json();
+                const selectLider = document.getElementById('lider_id');
+                selectLider.innerHTML = lideres.map(l => `<option value="${l.id}">${l.nome}</option>`).join('');
+            } catch (e) {
+                console.error("Erro ao carregar líderes:", e);
+            }
+        }
+
+        async function carregarSetores() {
+            try {
+                const res = await fetch(`${host}/setores`);
+                const setores = await res.json();
+                const selectSetor = document.getElementById('setor_id');
+                selectSetor.innerHTML = setores.map(s => `<option value="${s.id}">${s.nome}</option>`).join('');
+            } catch (e) {
+                console.error("Erro ao carregar setores:", e);
+            }
+        }
+
+        // Executa as buscas ao carregar a página
+        carregarLideres();
+        carregarSetores();
+
+        async function enviarAuditoria(event) {
+            event.preventDefault();
+
+            const checkboxes = document.querySelectorAll('input[name="descontos"]:checked');
+            if (checkboxes.length === 0) {
+                alert("Selecione pelo menos um desvio.");
+                return;
+            }
+
+            const itens = [];
+            checkboxes.forEach(cb => {
+                itens.push({
+                    descricao: cb.getAttribute('data-descricao'),
+                    senso: cb.getAttribute('data-senso'),
+                    valor_desconto: parseFloat(cb.value)
+                });
+            });
+
+            const dados = {
+                nome_auditor: document.getElementById('nome').value,
+                setor_id: parseInt(document.getElementById('setor_id').value),                        
+                lider_id: parseInt(document.getElementById('lider_id').value),
+                turno_id: parseInt(document.getElementById('turno_id').value),
+                tipo_formulario: 'quinzenal', // Configurado explicitamente para quinzenal
+                itens: itens
+            };
+
+            try {
+                const resposta = await fetch(`${host}/ocorrencias`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dados)
+                });
+
+                const resultado = await resposta.json();
+
+                if (resposta.ok) {
+                    alert("✅ " + resultado.mensagem);
+                    document.getElementById('formAuditoria').reset();
+                    campoData.value = hoje;
+                    carregarLideres();
+                    carregarSetores();
+                } else {
+                    alert("❌ Erro ao salvar: " + resultado.erro);
+                }
+            } catch (erro) {
+                console.error("Erro de conexão:", erro);
+                alert("❌ Falha de conexão com o servidor.");
+            }
+        }
+    </script>
+</body>
+</html>
